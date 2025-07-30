@@ -1,0 +1,56 @@
+{
+  "projectPath": "C:\\Users\\t-kadenluu\\OneDrive - Microsoft\\Desktop\\BotTesting\\trepo\\src\\Services\\TestService\\TestService.csproj",
+  "projectName": "TestService",
+  "targetFramework": "net472",
+  "dependencies": [
+    "Microsoft.Owin@4.2.2",
+    "Newtonsoft.Json@13.0.3",
+    "System.ServiceModel@4.10.3",
+    "System.Web.Http@5.2.9"
+  ],
+  "projectDependencies": [],
+  "namespaces": [
+    "Microsoft.Owin",
+    "Microsoft.Owin.Hosting",
+    "Microsoft.Owin.Security",
+    "Microsoft.TestService.Auth",
+    "Microsoft.TestService.Controllers",
+    "Microsoft.TestService.Data",
+    "Microsoft.TestService.Services",
+    "Newtonsoft.Json",
+    "Owin",
+    "System",
+    "System.Collections.Generic",
+    "System.Configuration",
+    "System.Data",
+    "System.Data.SqlClient",
+    "System.Linq",
+    "System.Net.Http",
+    "System.ServiceModel",
+    "System.ServiceModel.Web",
+    "System.Threading.Tasks",
+    "System.Web",
+    "System.Web.Http"
+  ],
+  "technologies": [
+    ".NET Framework Configuration",
+    "ASP.NET Framework",
+    "HttpClient",
+    "Newtonsoft.Json",
+    "OWIN",
+    "SQL Server (System.Data)",
+    "WCF"
+  ],
+  "metadata": {
+    "TotalSourceFiles": 5,
+    "ConfigurationFiles": 0,
+    "HasWebConfig": false,
+    "HasAppConfig": false,
+    "TargetFramework": "net472",
+    "EstimatedTotalLines": 167,
+    "FrameworkDependentFiles": 3,
+    "MigrationComplexityScore": "Medium"
+  },
+  "analyzedAt": "2025-07-30T21:47:44.8525833Z",
+  "technologiesFilePath": ""
+}
