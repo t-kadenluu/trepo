@@ -27,33 +27,20 @@
       "Files": {
         "AuthHelper.cs": {
           "Namespaces": [
-            "Microsoft.TestService.Auth",
-            "System",
-            "System.Configuration",
-            "System.Web",
-            "System.Web.Http"
+            "Microsoft.TestService.Auth"
           ],
           "RelativePath": "AuthHelper.cs"
         },
         "DataRepository.cs": {
           "Namespaces": [
             "Microsoft.TestService.Data",
-            "Newtonsoft.Json",
-            "System",
-            "System.Collections.Generic",
-            "System.Data",
-            "System.Data.SqlClient",
-            "System.Linq"
+            "Newtonsoft.Json"
           ],
           "RelativePath": "DataRepository.cs"
         },
         "LegacyService.cs": {
           "Namespaces": [
-            "Microsoft.TestService.Services",
-            "System",
-            "System.ServiceModel",
-            "System.ServiceModel.Web",
-            "System.Threading.Tasks"
+            "Microsoft.TestService.Services"
           ],
           "RelativePath": "LegacyService.cs"
         },
@@ -63,20 +50,14 @@
             "Microsoft.Owin.Hosting",
             "Microsoft.Owin.Security",
             "Microsoft.TestService.Startup",
-            "Owin",
-            "System",
-            "System.Threading.Tasks"
+            "Owin"
           ],
           "RelativePath": "Startup.cs"
         },
         "UserController.cs": {
           "Namespaces": [
             "Microsoft.TestService.Controllers",
-            "Newtonsoft.Json",
-            "System",
-            "System.Net.Http",
-            "System.Threading.Tasks",
-            "System.Web.Http"
+            "Newtonsoft.Json"
           ],
           "RelativePath": "UserController.cs"
         }
