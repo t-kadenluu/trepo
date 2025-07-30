@@ -1,56 +1,86 @@
 {
-  "projectPath": "C:\\Users\\t-kadenluu\\OneDrive - Microsoft\\Desktop\\BotTesting\\trepo\\src\\Services\\TestService\\TestService.csproj",
-  "projectName": "TestService",
-  "targetFramework": "net472",
-  "dependencies": [
-    "Microsoft.Owin@4.2.2",
-    "Newtonsoft.Json@13.0.3",
-    "System.ServiceModel@4.10.3",
-    "System.Web.Http@5.2.9"
-  ],
-  "projectDependencies": [],
-  "namespaces": [
-    "Microsoft.Owin",
-    "Microsoft.Owin.Hosting",
-    "Microsoft.Owin.Security",
-    "Microsoft.TestService.Auth",
-    "Microsoft.TestService.Controllers",
-    "Microsoft.TestService.Data",
-    "Microsoft.TestService.Services",
-    "Newtonsoft.Json",
-    "Owin",
-    "System",
-    "System.Collections.Generic",
-    "System.Configuration",
-    "System.Data",
-    "System.Data.SqlClient",
-    "System.Linq",
-    "System.Net.Http",
-    "System.ServiceModel",
-    "System.ServiceModel.Web",
-    "System.Threading.Tasks",
-    "System.Web",
-    "System.Web.Http"
-  ],
-  "technologies": [
-    ".NET Framework Configuration",
-    "ASP.NET Framework",
-    "HttpClient",
-    "Newtonsoft.Json",
-    "OWIN",
-    "SQL Server (System.Data)",
-    "WCF"
-  ],
-  "metadata": {
-    "TotalSourceFiles": 5,
-    "ConfigurationFiles": 1,
-    "HasWebConfig": false,
-    "HasAppConfig": false,
-    "TargetFramework": "net472",
-    "EstimatedTotalLines": 167,
-    "FrameworkDependentFiles": 3,
-    "MigrationComplexityScore": "Medium"
-  },
-  "analyzedAt": "2025-07-30T22:50:51.6472007Z",
-  "technologiesFilePath": ""
+  "TestService": {
+    "TestService": {
+      "Namespaces": [
+        "Microsoft.Owin",
+        "Microsoft.Owin.Hosting",
+        "Microsoft.Owin.Security",
+        "Microsoft.TestService.Auth",
+        "Microsoft.TestService.Controllers",
+        "Microsoft.TestService.Data",
+        "Microsoft.TestService.Services",
+        "Newtonsoft.Json",
+        "Owin",
+        "System",
+        "System.Collections.Generic",
+        "System.Configuration",
+        "System.Data",
+        "System.Data.SqlClient",
+        "System.Linq",
+        "System.Net.Http",
+        "System.ServiceModel",
+        "System.ServiceModel.Web",
+        "System.Threading.Tasks",
+        "System.Web",
+        "System.Web.Http"
+      ],
+      "Files": {
+        "AuthHelper.cs": {
+          "Namespaces": [
+            "Microsoft.TestService.Auth",
+            "System",
+            "System.Configuration",
+            "System.Web",
+            "System.Web.Http"
+          ],
+          "RelativePath": "AuthHelper.cs"
+        },
+        "DataRepository.cs": {
+          "Namespaces": [
+            "Microsoft.TestService.Data",
+            "Newtonsoft.Json",
+            "System",
+            "System.Collections.Generic",
+            "System.Data",
+            "System.Data.SqlClient",
+            "System.Linq"
+          ],
+          "RelativePath": "DataRepository.cs"
+        },
+        "LegacyService.cs": {
+          "Namespaces": [
+            "Microsoft.TestService.Services",
+            "System",
+            "System.ServiceModel",
+            "System.ServiceModel.Web",
+            "System.Threading.Tasks"
+          ],
+          "RelativePath": "LegacyService.cs"
+        },
+        "Startup.cs": {
+          "Namespaces": [
+            "Microsoft.Owin",
+            "Microsoft.Owin.Hosting",
+            "Microsoft.Owin.Security",
+            "Microsoft.TestService.Startup",
+            "Owin",
+            "System",
+            "System.Threading.Tasks"
+          ],
+          "RelativePath": "Startup.cs"
+        },
+        "UserController.cs": {
+          "Namespaces": [
+            "Microsoft.TestService.Controllers",
+            "Newtonsoft.Json",
+            "System",
+            "System.Net.Http",
+            "System.Threading.Tasks",
+            "System.Web.Http"
+          ],
+          "RelativePath": "UserController.cs"
+        }
+      }
+    }
+  }
 }
