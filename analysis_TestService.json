@@ -1,5 +1,5 @@
 {
-  "TestService": {
+  "Projects": {
     "TestService": {
       "Namespaces": [
         "Microsoft.AspNetCore.Builder",
@@ -12,7 +12,6 @@
         "Microsoft.Extensions.Logging",
         "Microsoft.TestService.Data",
         "Newtonsoft.Json",
-        "Newtonsoft.Json.Serialization",
         "System",
         "System.Collections.Generic",
         "System.Diagnostics",
@@ -24,6 +23,8 @@
         "System.Security.Authentication",
         "System.Security.Claims",
         "System.Text",
+        "System.Text.Json",
+        "System.Text.Json.Serialization",
         "System.Threading",
         "System.Threading.Tasks"
       ],
