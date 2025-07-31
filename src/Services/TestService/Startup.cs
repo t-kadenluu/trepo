@@ -1,34 +1,59 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.Owin;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Hosting;
-using Owin;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.TestService.Startup
 {
     /// <summary>
-    /// OWIN Startup configuration
+    /// ASP.NET Core Startup configuration
     /// </summary>
-    public class Startup
+    public class CustomMiddleware
     {
-        public void Configuration(IAppBuilder app)
+        private readonly RequestDelegate _next;
+        private readonly ILogger<CustomMiddleware> _logger;
+
+        public CustomMiddleware(RequestDelegate next, ILogger<CustomMiddleware> logger)
         {
-            // Configure OWIN middleware
-            app.Use<CustomMiddleware>();
+            _next = next;
+            _logger = logger;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            // Custom middleware logic
+            _logger.LogInformation("Handling request: {Path}", context.Request.Path);
+            await _next(context);
+            _logger.LogInformation("Finished handling request.");
         }
     }
 
-    public class CustomMiddleware : OwinMiddleware
+    public static class Program
     {
-        public CustomMiddleware(OwinMiddleware next) : base(next)
+        public static void Main(string[] args)
         {
-        }
+            var builder = WebApplication.CreateBuilder(args);
 
-        public override async Task Invoke(IOwinContext context)
-        {
-            // Custom middleware logic
-            await Next.Invoke(context);
+            // Add required services here
+            // Example: Add authentication services
+            // builder.Services.AddAuthentication(options =>
+            // {
+            //     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            // }).AddCookie();
+
+            var app = builder.Build();
+
+            // Configure ASP.NET Core middleware
+            app.UseMiddleware<CustomMiddleware>();
+            // Example: app.UseAuthentication();
+            // Example: app.UseAuthorization();
+
+            app.Run();
         }
     }
 }

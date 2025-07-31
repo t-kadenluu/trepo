@@ -1,27 +1,28 @@
+#nullable enable
+
 using System;
-using System.ServiceModel;
-using System.ServiceModel.Web;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.TestService.Services;
+using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Microsoft.TestService.Services
 {
     /// <summary>
-    /// WCF Service for legacy operations
+    /// RESTful controller for legacy operations
     /// </summary>
-    [ServiceContract]
-    public interface ILegacyService
+    [ApiController]
+    [Route("api/[controller]")]
+    public class LegacyServiceController : ControllerBase
     {
-        [OperationContract]
-        [WebGet]
-        string GetLegacyData(string id);
-    }
-
-    public class LegacyService : ILegacyService
-    {
-        public string GetLegacyData(string id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<string>> GetLegacyDataAsync(string id, CancellationToken cancellationToken)
         {
-            return $"Legacy data for ID: {id}";
+            // Simulate async operation and check for cancellation
+            await Task.Yield();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return Ok($"Legacy data for ID: {id}");
         }
     }
 }
