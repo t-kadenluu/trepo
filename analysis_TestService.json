@@ -2,60 +2,64 @@
   "TestService": {
     "TestService": {
       "Namespaces": [
-        "Microsoft.Owin",
-        "Microsoft.Owin.Hosting",
-        "Microsoft.Owin.Security",
-        "Microsoft.TestService.Auth",
-        "Microsoft.TestService.Controllers",
+        "Microsoft.AspNetCore.Builder",
+        "Microsoft.AspNetCore.Http",
+        "Microsoft.AspNetCore.Mvc",
+        "Microsoft.Data.SqlClient",
+        "Microsoft.Extensions.Configuration",
+        "Microsoft.Extensions.DependencyInjection",
+        "Microsoft.Extensions.Hosting",
+        "Microsoft.Extensions.Logging",
         "Microsoft.TestService.Data",
-        "Microsoft.TestService.Services",
         "Newtonsoft.Json",
-        "Owin",
+        "Newtonsoft.Json.Serialization",
         "System",
         "System.Collections.Generic",
-        "System.Configuration",
-        "System.Data",
-        "System.Data.SqlClient",
+        "System.Diagnostics",
+        "System.IO",
         "System.Linq",
-        "System.Net.Http",
-        "System.ServiceModel",
-        "System.ServiceModel.Web",
-        "System.Threading.Tasks",
-        "System.Web",
-        "System.Web.Http"
+        "System.Runtime.InteropServices",
+        "System.Security.Authentication",
+        "System.Security.Claims",
+        "System.Text",
+        "System.Threading",
+        "System.Threading.Tasks"
       ],
       "Files": {
         "AuthHelper.cs": {
           "Namespaces": [
+            "Microsoft.AspNetCore.Http",
             "Microsoft.TestService.Auth"
           ],
           "RelativePath": "AuthHelper.cs"
         },
         "DataRepository.cs": {
           "Namespaces": [
+            "Microsoft.Data.SqlClient",
             "Microsoft.TestService.Data",
-            "Newtonsoft.Json"
+            "Newtonsoft.Json",
+            "Newtonsoft.Json.Serialization"
           ],
           "RelativePath": "DataRepository.cs"
         },
         "LegacyService.cs": {
           "Namespaces": [
+            "Microsoft.AspNetCore.Mvc",
             "Microsoft.TestService.Services"
           ],
           "RelativePath": "LegacyService.cs"
         },
         "Startup.cs": {
           "Namespaces": [
-            "Microsoft.Owin",
-            "Microsoft.Owin.Hosting",
-            "Microsoft.Owin.Security",
-            "Microsoft.TestService.Startup",
-            "Owin"
+            "Microsoft.AspNetCore.Builder",
+            "Microsoft.AspNetCore.Http",
+            "Microsoft.TestService.Startup"
           ],
           "RelativePath": "Startup.cs"
         },
         "UserController.cs": {
           "Namespaces": [
+            "Microsoft.AspNetCore.Mvc",
             "Microsoft.TestService.Controllers",
             "Newtonsoft.Json"
           ],

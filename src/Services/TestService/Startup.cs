@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -49,11 +50,20 @@ namespace Microsoft.TestService.Startup
             var app = builder.Build();
 
             // Configure ASP.NET Core middleware
-            app.UseMiddleware<CustomMiddleware>();
+            app.Use(async (context, next) =>
+            {
+                var logger = context.RequestServices.GetRequiredService<ILogger<CustomMiddleware>>();
+                logger.LogInformation("Handling request: {Path}", context.Request.Path);
+                await next();
+                logger.LogInformation("Finished handling request.");
+            });
             // Example: app.UseAuthentication();
             // Example: app.UseAuthorization();
 
-            app.Run();
+            app.Run(async (context) =>
+            {
+                await context.Response.WriteAsync("Hello World!", context.RequestAborted);
+            });
         }
     }
 }

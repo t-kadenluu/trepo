@@ -53,12 +53,21 @@ namespace Microsoft.TestService.Controllers
             try
             {
                 // Read and deserialize request body using cross-platform compatible stream and encoding
-                object userData;
+                object? userData;
                 using (var reader = new StreamReader(Request.Body, Encoding.UTF8, leaveOpen: true))
                 using (var jsonReader = new JsonTextReader(reader))
                 {
-                    var serializer = new JsonSerializer();
-                    userData = await Task.Run(() => serializer.Deserialize<object>(jsonReader), cancellationToken);
+                    var serializer = new JsonSerializer
+                    {
+                        DateParseHandling = DateParseHandling.None, // Explicitly specify date handling to avoid OS-dependent variants
+                    };
+
+                    // Use Task.Run to offload synchronous deserialization and support cancellation
+                    userData = await Task.Run(() =>
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        return serializer.Deserialize<object>(jsonReader);
+                    }, cancellationToken).ConfigureAwait(false);
                 }
 
                 // Simulate user creation

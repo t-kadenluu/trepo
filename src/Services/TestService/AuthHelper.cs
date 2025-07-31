@@ -26,7 +26,7 @@ namespace Microsoft.TestService.Auth
         {
             if (httpContext?.User?.Identity?.IsAuthenticated == true)
             {
-                return httpContext.User.Identity.Name ?? "Anonymous";
+                return httpContext.User.Identity?.Name ?? "Anonymous";
             }
             return "Anonymous";
         }
