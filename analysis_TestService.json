@@ -33,36 +33,31 @@
           "Namespaces": [
             "Microsoft.TestService.Auth"
           ],
-          "RelativePath": "AuthHelper.cs",
-          "AbsolutePath": "C:\\Users\\t-kadenluu\\OneDrive - Microsoft\\Desktop\\BotTesting\\trepo\\src\\Services\\TestService\\AuthHelper.cs"
+          "RelativePath": "AuthHelper.cs"
         },
         "DataRepository.cs": {
           "Namespaces": [
             "Microsoft.TestService.Data"
           ],
-          "RelativePath": "DataRepository.cs",
-          "AbsolutePath": "C:\\Users\\t-kadenluu\\OneDrive - Microsoft\\Desktop\\BotTesting\\trepo\\src\\Services\\TestService\\DataRepository.cs"
+          "RelativePath": "DataRepository.cs"
         },
         "LegacyService.cs": {
           "Namespaces": [
             "Microsoft.TestService.Services"
           ],
-          "RelativePath": "LegacyService.cs",
-          "AbsolutePath": "C:\\Users\\t-kadenluu\\OneDrive - Microsoft\\Desktop\\BotTesting\\trepo\\src\\Services\\TestService\\LegacyService.cs"
+          "RelativePath": "LegacyService.cs"
         },
         "Startup.cs": {
           "Namespaces": [
             "Microsoft.TestService.Startup"
           ],
-          "RelativePath": "Startup.cs",
-          "AbsolutePath": "C:\\Users\\t-kadenluu\\OneDrive - Microsoft\\Desktop\\BotTesting\\trepo\\src\\Services\\TestService\\Startup.cs"
+          "RelativePath": "Startup.cs"
         },
         "UserController.cs": {
           "Namespaces": [
             "Microsoft.TestService.Controllers"
           ],
-          "RelativePath": "UserController.cs",
-          "AbsolutePath": "C:\\Users\\t-kadenluu\\OneDrive - Microsoft\\Desktop\\BotTesting\\trepo\\src\\Services\\TestService\\UserController.cs"
+          "RelativePath": "UserController.cs"
         }
       }
     }
