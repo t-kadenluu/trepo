@@ -91,7 +91,7 @@ namespace Microsoft.TestService.Data
                 {
                     builder.IntegratedSecurity = false;
                     // For cross-platform, recommend using Azure AD authentication if needed
-                    // builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
+                    // builder.Authentication = "Active Directory Interactive";
                 }
             }
 

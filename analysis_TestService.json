@@ -69,6 +69,7 @@
             "Microsoft.AspNetCore.Mvc",
             "Microsoft.TestService.Services",
             "System",
+            "System.IO",
             "System.Threading",
             "System.Threading.Tasks"
           ],

@@ -31,8 +31,14 @@ namespace Microsoft.TestService.Controllers
             activity.Start();
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var user = new { Id = id, Name = "Test User" };
                 return Ok(user);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("GetUser operation was canceled.");
+                return StatusCode(499, "Client Closed Request");
             }
             catch (Exception ex)
             {
