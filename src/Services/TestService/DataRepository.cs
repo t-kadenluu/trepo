@@ -63,7 +63,7 @@ namespace Microsoft.TestService.Data
                     }
                 }
             }
-            catch (Microsoft.Data.SqlClient.SqlException ex) when (ex is not null)
+            catch (SqlException ex) when (ex is not null)
             {
                 _logger?.LogError(ex, "SQL error in GetDataAsync");
                 throw;
