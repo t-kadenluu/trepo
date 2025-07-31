@@ -48,6 +48,10 @@ namespace Microsoft.TestService.Data
                     {
                         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                         {
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                yield break;
+                            }
                             var user = new User
                             {
                                 Id = reader.GetInt32(0),

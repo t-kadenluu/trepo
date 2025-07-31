@@ -33,31 +33,31 @@
           "Namespaces": [
             "Microsoft.TestService.Auth"
           ],
-          "RelativePath": "AuthHelper.cs"
+          "RelativePath": "src/Services/TestService/AuthHelper.cs"
         },
         "DataRepository.cs": {
           "Namespaces": [
             "Microsoft.TestService.Data"
           ],
-          "RelativePath": "DataRepository.cs"
+          "RelativePath": "src/Services/TestService/DataRepository.cs"
         },
         "LegacyService.cs": {
           "Namespaces": [
             "Microsoft.TestService.Services"
           ],
-          "RelativePath": "LegacyService.cs"
+          "RelativePath": "src/Services/TestService/LegacyService.cs"
         },
         "Startup.cs": {
           "Namespaces": [
             "Microsoft.TestService.Startup"
           ],
-          "RelativePath": "Startup.cs"
+          "RelativePath": "src/Services/TestService/Startup.cs"
         },
         "UserController.cs": {
           "Namespaces": [
             "Microsoft.TestService.Controllers"
           ],
-          "RelativePath": "UserController.cs"
+          "RelativePath": "src/Services/TestService/UserController.cs"
         }
       }
     }
