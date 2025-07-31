@@ -1,34 +1,37 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.Owin;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Hosting;
-using Owin;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.TestService.Startup
 {
     /// <summary>
-    /// OWIN Startup configuration
+    /// ASP.NET Core Startup configuration
     /// </summary>
     public class Startup
     {
-        public void Configuration(IAppBuilder app)
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void Configure(WebApplication app)
         {
-            // Configure OWIN middleware
-            app.Use<CustomMiddleware>();
+            // Configure ASP.NET Core middleware
+            app.UseMiddleware<CustomMiddleware>();
         }
     }
 
-    public class CustomMiddleware : OwinMiddleware
+    public class CustomMiddleware
     {
-        public CustomMiddleware(OwinMiddleware next) : base(next)
+        private readonly RequestDelegate _next;
+
+        public CustomMiddleware(RequestDelegate next)
         {
+            _next = next;
         }
 
-        public override async Task Invoke(IOwinContext context)
+        public async Task InvokeAsync(HttpContext context)
         {
             // Custom middleware logic
-            await Next.Invoke(context);
+            await _next(context);
         }
     }
 }

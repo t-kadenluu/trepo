@@ -1,8 +1,8 @@
 using System;
-using System.Web.Http;
-using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.TestService.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
 
 namespace Microsoft.TestService.Controllers
@@ -10,17 +10,19 @@ namespace Microsoft.TestService.Controllers
     /// <summary>
     /// Web API Controller for handling user operations
     /// </summary>
-    public class UserController : ApiController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UserController : ControllerBase
     {
-        [HttpGet]
-        public async Task<IHttpActionResult> GetUser(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetUser(int id, CancellationToken cancellationToken)
         {
             var user = new { Id = id, Name = "Test User" };
-            return Json(user);
+            return new JsonResult(user);
         }
 
         [HttpPost]
-        public async Task<IHttpActionResult> CreateUser([FromBody] object userData)
+        public async Task<ActionResult> CreateUser([FromBody] object userData, CancellationToken cancellationToken)
         {
             // Simulate user creation
             return Ok("User created successfully");

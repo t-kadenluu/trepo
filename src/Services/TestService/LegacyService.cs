@@ -1,27 +1,26 @@
 using System;
-using System.ServiceModel;
-using System.ServiceModel.Web;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.TestService.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.TestService.Services
 {
     /// <summary>
-    /// WCF Service for legacy operations
+    /// Minimal API for legacy operations (migrated from WCF)
     /// </summary>
-    [ServiceContract]
-    public interface ILegacyService
+    public static class LegacyServiceEndpoints
     {
-        [OperationContract]
-        [WebGet]
-        string GetLegacyData(string id);
-    }
-
-    public class LegacyService : ILegacyService
-    {
-        public string GetLegacyData(string id)
+        public static void MapLegacyServiceEndpoints(this IEndpointRouteBuilder endpoints)
         {
-            return $"Legacy data for ID: {id}";
+            endpoints.MapGet("/legacy/{id}", async (string id, CancellationToken cancellationToken) =>
+            {
+                // Simulate async operation and support cancellation
+                await Task.Yield();
+                cancellationToken.ThrowIfCancellationRequested();
+                return Results.Ok($"Legacy data for ID: {id}");
+            });
         }
     }
 }
