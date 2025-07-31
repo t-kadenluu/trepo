@@ -16,8 +16,10 @@
         "System",
         "System.Collections.Generic",
         "System.Diagnostics",
+        "System.Diagnostics.Metrics",
         "System.IO",
         "System.Linq",
+        "System.Runtime.CompilerServices",
         "System.Runtime.InteropServices",
         "System.Security.Authentication",
         "System.Security.Claims",
@@ -28,40 +30,31 @@
       "Files": {
         "AuthHelper.cs": {
           "Namespaces": [
-            "Microsoft.AspNetCore.Http",
             "Microsoft.TestService.Auth"
           ],
           "RelativePath": "AuthHelper.cs"
         },
         "DataRepository.cs": {
           "Namespaces": [
-            "Microsoft.Data.SqlClient",
-            "Microsoft.TestService.Data",
-            "Newtonsoft.Json",
-            "Newtonsoft.Json.Serialization"
+            "Microsoft.TestService.Data"
           ],
           "RelativePath": "DataRepository.cs"
         },
         "LegacyService.cs": {
           "Namespaces": [
-            "Microsoft.AspNetCore.Mvc",
             "Microsoft.TestService.Services"
           ],
           "RelativePath": "LegacyService.cs"
         },
         "Startup.cs": {
           "Namespaces": [
-            "Microsoft.AspNetCore.Builder",
-            "Microsoft.AspNetCore.Http",
             "Microsoft.TestService.Startup"
           ],
           "RelativePath": "Startup.cs"
         },
         "UserController.cs": {
           "Namespaces": [
-            "Microsoft.AspNetCore.Mvc",
-            "Microsoft.TestService.Controllers",
-            "Newtonsoft.Json"
+            "Microsoft.TestService.Controllers"
           ],
           "RelativePath": "UserController.cs"
         }

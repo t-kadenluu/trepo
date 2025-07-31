@@ -5,8 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.TestService.Data;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.Configuration;
@@ -38,7 +38,6 @@ namespace Microsoft.TestService.Data
             using var activity = ActivitySource.StartActivity("GetDataAsync", ActivityKind.Internal);
             try
             {
-                // Platform-specific connection string handling
                 var connectionString = GetPlatformCompatibleConnectionString(_connectionString);
 
                 await using (var connection = new SqlConnection(connectionString))
@@ -60,12 +59,12 @@ namespace Microsoft.TestService.Data
                     }
                 }
             }
-            catch (SqlException ex)
+            catch (SqlException ex) when (ex is not null)
             {
                 _logger?.LogError(ex, "SQL error in GetDataAsync");
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not null)
             {
                 _logger?.LogError(ex, "Error in GetDataAsync");
                 throw;
@@ -82,19 +81,14 @@ namespace Microsoft.TestService.Data
         {
             var builder = new SqlConnectionStringBuilder(baseConnectionString);
 
-            // Remove or adjust Windows-only authentication for non-Windows platforms
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 if (builder.IntegratedSecurity)
                 {
-                    // Integrated Security is not supported cross-platform; fallback to SQL authentication or throw
                     builder.IntegratedSecurity = false;
-                    // Optionally: throw new PlatformNotSupportedException("Integrated Security is not supported on this platform.");
                 }
-                // Remove or adjust other Windows-specific settings as needed
             }
 
-            // Ensure encryption and trust server certificate settings are compatible
             if (!builder.ContainsKey("Encrypt"))
             {
                 builder.Encrypt = true;
@@ -104,7 +98,6 @@ namespace Microsoft.TestService.Data
                 builder.TrustServerCertificate = true;
             }
 
-            // Connection pooling configuration for .NET 9.0
             if (!builder.ContainsKey("Max Pool Size"))
             {
                 builder.MaxPoolSize = 100;
@@ -115,65 +108,42 @@ namespace Microsoft.TestService.Data
 
         public string SerializeData(object? data)
         {
-            var serializerSettings = new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                ContractResolver = new CamelCaseNamingStrategyContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore,
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = false
             };
-            return JsonConvert.SerializeObject(data, serializerSettings);
+            return JsonSerializer.Serialize(data, options);
         }
 
         public async Task SerializeDataToFileAsync(object? data, string fileName, CancellationToken cancellationToken = default)
         {
-            var serializerSettings = new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                ContractResolver = new CamelCaseNamingStrategyContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore,
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = false
             };
 
             var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
             await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous);
-            using var streamWriter = new StreamWriter(stream, Encoding.UTF8);
-            using var jsonWriter = new JsonTextWriter(streamWriter);
-            var serializer = JsonSerializer.Create(serializerSettings);
-
-            // Ensure cancellation is respected during serialization
-            await serializer.SerializeAsync(jsonWriter, data, cancellationToken).ConfigureAwait(false);
-
-            await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
+            await JsonSerializer.SerializeAsync(stream, data, data?.GetType() ?? typeof(object), options, cancellationToken).ConfigureAwait(false);
+            await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<T?> DeserializeDataFromFileAsync<T>(string fileName, CancellationToken cancellationToken = default)
         {
-            var serializerSettings = new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                ContractResolver = new CamelCaseNamingStrategyContractResolver(),
-                NullValueHandling = NullValueHandling.Ignore,
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = false
             };
 
             var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
             await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous);
-            using var streamReader = new StreamReader(stream, Encoding.UTF8);
-            using var jsonReader = new JsonTextReader(streamReader);
-            var serializer = JsonSerializer.Create(serializerSettings);
-
-            // Ensure cancellation is respected during deserialization
-            return await serializer.DeserializeAsync<T>(jsonReader, cancellationToken).ConfigureAwait(false);
-        }
-    }
-
-    // Custom contract resolver using the latest IContractResolver and NamingStrategy extensibility
-    public class CamelCaseNamingStrategyContractResolver : DefaultContractResolver
-    {
-        public CamelCaseNamingStrategyContractResolver()
-        {
-            NamingStrategy = new CamelCaseNamingStrategy();
+            return await JsonSerializer.DeserializeAsync<T>(stream, options, cancellationToken).ConfigureAwait(false);
         }
     }
 
