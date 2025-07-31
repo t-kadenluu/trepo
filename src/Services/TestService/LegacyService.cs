@@ -3,7 +3,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Microsoft.TestService.Services

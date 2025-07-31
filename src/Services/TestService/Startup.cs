@@ -54,16 +54,18 @@ namespace Microsoft.TestService.Startup
             {
                 var logger = context.RequestServices.GetRequiredService<ILogger<CustomMiddleware>>();
                 logger.LogInformation("Handling request: {Path}", context.Request.Path);
-                await next();
+                await next(context.RequestAborted);
                 logger.LogInformation("Finished handling request.");
             });
             // Example: app.UseAuthentication();
             // Example: app.UseAuthorization();
 
-            app.Run(async (context) =>
+            app.MapGet("/", async context =>
             {
                 await context.Response.WriteAsync("Hello World!", context.RequestAborted);
             });
+
+            app.Run();
         }
     }
 }

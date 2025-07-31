@@ -63,7 +63,7 @@ namespace Microsoft.TestService.Data
                     }
                 }
             }
-            catch (SqlException ex) when (ex is not null)
+            catch (Microsoft.Data.SqlClient.SqlException ex) when (ex is not null)
             {
                 _logger?.LogError(ex, "SQL error in GetDataAsync");
                 throw;
@@ -90,7 +90,19 @@ namespace Microsoft.TestService.Data
                 if (builder.IntegratedSecurity)
                 {
                     builder.IntegratedSecurity = false;
+                    // For cross-platform, recommend using Azure AD authentication if needed
+                    // builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
                 }
+            }
+
+            // Remove deprecated or Windows-only options if present
+            if (builder.ContainsKey("AttachDbFilename"))
+            {
+                builder.Remove("AttachDbFilename");
+            }
+            if (builder.ContainsKey("User Instance"))
+            {
+                builder.Remove("User Instance");
             }
 
             if (!builder.ContainsKey("Encrypt"))

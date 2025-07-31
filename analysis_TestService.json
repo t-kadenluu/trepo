@@ -31,31 +31,76 @@
       "Files": {
         "AuthHelper.cs": {
           "Namespaces": [
-            "Microsoft.TestService.Auth"
+            "Microsoft.AspNetCore.Http",
+            "Microsoft.Extensions.Configuration",
+            "Microsoft.TestService.Auth",
+            "System",
+            "System.Security.Authentication",
+            "System.Security.Claims",
+            "System.Threading",
+            "System.Threading.Tasks"
           ],
           "RelativePath": "src/Services/TestService/AuthHelper.cs"
         },
         "DataRepository.cs": {
           "Namespaces": [
-            "Microsoft.TestService.Data"
+            "Microsoft.Data.SqlClient",
+            "Microsoft.Extensions.Configuration",
+            "Microsoft.Extensions.Logging",
+            "Microsoft.TestService.Data",
+            "System",
+            "System.Collections.Generic",
+            "System.Diagnostics",
+            "System.Diagnostics.Metrics",
+            "System.IO",
+            "System.Linq",
+            "System.Runtime.CompilerServices",
+            "System.Runtime.InteropServices",
+            "System.Text",
+            "System.Text.Json",
+            "System.Text.Json.Serialization",
+            "System.Threading",
+            "System.Threading.Tasks"
           ],
           "RelativePath": "src/Services/TestService/DataRepository.cs"
         },
         "LegacyService.cs": {
           "Namespaces": [
-            "Microsoft.TestService.Services"
+            "Microsoft.AspNetCore.Mvc",
+            "Microsoft.TestService.Services",
+            "System",
+            "System.Runtime.InteropServices",
+            "System.Threading",
+            "System.Threading.Tasks"
           ],
           "RelativePath": "src/Services/TestService/LegacyService.cs"
         },
         "Startup.cs": {
           "Namespaces": [
-            "Microsoft.TestService.Startup"
+            "Microsoft.AspNetCore.Builder",
+            "Microsoft.AspNetCore.Http",
+            "Microsoft.Extensions.DependencyInjection",
+            "Microsoft.Extensions.Hosting",
+            "Microsoft.Extensions.Logging",
+            "Microsoft.TestService.Startup",
+            "System",
+            "System.Threading",
+            "System.Threading.Tasks"
           ],
           "RelativePath": "src/Services/TestService/Startup.cs"
         },
         "UserController.cs": {
           "Namespaces": [
-            "Microsoft.TestService.Controllers"
+            "Microsoft.AspNetCore.Mvc",
+            "Microsoft.Extensions.Logging",
+            "Microsoft.TestService.Controllers",
+            "Newtonsoft.Json",
+            "System",
+            "System.Diagnostics",
+            "System.IO",
+            "System.Text",
+            "System.Threading",
+            "System.Threading.Tasks"
           ],
           "RelativePath": "src/Services/TestService/UserController.cs"
         }

@@ -25,7 +25,7 @@ namespace Microsoft.TestService.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetUser(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetUser(int id, CancellationToken cancellationToken)
         {
             var activity = Activity.Current ?? new Activity("GetUser");
             activity.Start();
@@ -46,7 +46,7 @@ namespace Microsoft.TestService.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<string>> CreateUser(CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateUser(CancellationToken cancellationToken)
         {
             var activity = Activity.Current ?? new Activity("CreateUser");
             activity.Start();
