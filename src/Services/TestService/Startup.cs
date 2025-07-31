@@ -12,31 +12,45 @@ namespace Microsoft.TestService.Startup
     /// <summary>
     /// ASP.NET Core Startup configuration
     /// </summary>
-    public class CustomMiddleware
+    public class CustomMiddleware : Microsoft.AspNetCore.Http.IMiddleware
     {
-        private readonly RequestDelegate _next;
         private readonly ILogger<CustomMiddleware> _logger;
+        private static readonly Action<ILogger, string, Exception?> _handlingRequest =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(1, nameof(InvokeAsync)),
+                "Handling request: {Path}");
 
-        public CustomMiddleware(RequestDelegate next, ILogger<CustomMiddleware> logger)
+        private static readonly Action<ILogger, Exception?> _finishedHandlingRequest =
+            LoggerMessage.Define(
+                LogLevel.Information,
+                new EventId(2, nameof(InvokeAsync)),
+                "Finished handling request.");
+
+        public CustomMiddleware(ILogger<CustomMiddleware> logger)
         {
-            _next = next;
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            // Custom middleware logic
-            _logger.LogInformation("Handling request: {Path}", context.Request.Path);
-            await _next(context);
-            _logger.LogInformation("Finished handling request.");
+            _handlingRequest(_logger, context.Request.Path, null);
+            await next(context);
+            _finishedHandlingRequest(_logger, null);
         }
     }
 
     public static class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Configure logging using appsettings.json or code-based configuration
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+            // Optionally add Serilog or other cross-platform providers here
 
             // Add required services here
             // Example: Add authentication services
@@ -47,25 +61,34 @@ namespace Microsoft.TestService.Startup
             //     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             // }).AddCookie();
 
+            // Example: Add distributed session services if needed
+            // builder.Services.AddDistributedMemoryCache();
+            // builder.Services.AddSession();
+
+            // Register CustomMiddleware as a transient service with DI
+            builder.Services.AddTransient<CustomMiddleware>();
+
+            // Add OpenTelemetry instrumentation for logging and metrics if needed
+            // builder.Services.AddOpenTelemetry()
+            //     .WithMetrics(metrics => { /* configure metrics */ })
+            //     .WithTracing(tracing => { /* configure tracing */ });
+
             var app = builder.Build();
 
+            // Example: Use session middleware if needed
+            // app.UseSession();
+
             // Configure ASP.NET Core middleware
-            app.Use(async (context, next) =>
-            {
-                var logger = context.RequestServices.GetRequiredService<ILogger<CustomMiddleware>>();
-                logger.LogInformation("Handling request: {Path}", context.Request.Path);
-                await next(context.RequestAborted);
-                logger.LogInformation("Finished handling request.");
-            });
+            app.UseMiddleware<CustomMiddleware>();
             // Example: app.UseAuthentication();
             // Example: app.UseAuthorization();
 
-            app.MapGet("/", async context =>
+            app.MapGet("/", async (HttpContext context) =>
             {
                 await context.Response.WriteAsync("Hello World!", context.RequestAborted);
             });
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }

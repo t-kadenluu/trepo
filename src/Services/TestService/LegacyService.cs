@@ -16,7 +16,7 @@ namespace Microsoft.TestService.Services
     public class LegacyServiceController : ControllerBase
     {
         [HttpGet("{id}")]
-        public async Task<ActionResult<string>> GetLegacyDataAsync(string id, CancellationToken cancellationToken)
+        public async Task<ActionResult<string?>> GetLegacyDataAsync(string id, CancellationToken cancellationToken)
         {
             // Simulate async operation and check for cancellation
             await Task.Yield();

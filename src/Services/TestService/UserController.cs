@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.TestService.Controllers
 {
@@ -17,6 +18,30 @@ namespace Microsoft.TestService.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
+        private static readonly Action<ILogger, int, Exception?> _getUserError =
+            LoggerMessage.Define<int>(
+                LogLevel.Error,
+                new EventId(1, nameof(GetUser)),
+                "Error in GetUser for user id {UserId}");
+
+        private static readonly Action<ILogger, Exception?> _getUserCanceled =
+            LoggerMessage.Define(
+                LogLevel.Warning,
+                new EventId(2, nameof(GetUser)),
+                "GetUser operation was canceled.");
+
+        private static readonly Action<ILogger, Exception?> _createUserError =
+            LoggerMessage.Define(
+                LogLevel.Error,
+                new EventId(3, nameof(CreateUser)),
+                "Error in CreateUser");
+
+        private static readonly Action<ILogger, Exception?> _createUserCanceled =
+            LoggerMessage.Define(
+                LogLevel.Warning,
+                new EventId(4, nameof(CreateUser)),
+                "CreateUser operation was canceled.");
+
         private readonly ILogger<UserController> _logger;
 
         public UserController(ILogger<UserController> logger)
@@ -27,7 +52,7 @@ namespace Microsoft.TestService.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id, CancellationToken cancellationToken)
         {
-            var activity = Activity.Current ?? new Activity("GetUser");
+            using var activity = Activity.Current ?? new Activity("GetUser");
             activity.Start();
             try
             {
@@ -37,12 +62,22 @@ namespace Microsoft.TestService.Controllers
             }
             catch (OperationCanceledException)
             {
-                _logger.LogWarning("GetUser operation was canceled.");
+                _getUserCanceled(_logger, null);
                 return StatusCode(499, "Client Closed Request");
             }
-            catch (Exception ex)
+            catch (ArgumentNullException ex)
             {
-                _logger.LogError(ex, "Error in GetUser");
+                _getUserError(_logger, id, ex);
+                throw;
+            }
+            catch (ArgumentException ex)
+            {
+                _getUserError(_logger, id, ex);
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                _getUserError(_logger, id, ex);
                 throw;
             }
             finally
@@ -54,39 +89,51 @@ namespace Microsoft.TestService.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(CancellationToken cancellationToken)
         {
-            var activity = Activity.Current ?? new Activity("CreateUser");
+            using var activity = Activity.Current ?? new Activity("CreateUser");
             activity.Start();
             try
             {
-                // Read and deserialize request body using cross-platform compatible stream and encoding
                 object? userData;
-                using (var reader = new StreamReader(Request.Body, Encoding.UTF8, leaveOpen: true))
-                using (var jsonReader = new JsonTextReader(reader))
+                // Explicitly specify UTF8 encoding and newline handling for cross-platform consistency
+                await using (var reader = new StreamReader(Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true))
+                using (var jsonReader = new JsonTextReader(reader) { CloseInput = false, SupportMultipleContent = false, LineInfoHandling = LineInfoHandling.Load })
                 {
                     var serializer = new JsonSerializer
                     {
-                        DateParseHandling = DateParseHandling.None, // Explicitly specify date handling to avoid OS-dependent variants
+                        DateParseHandling = DateParseHandling.None,
                     };
 
-                    // Use Task.Run to offload synchronous deserialization and support cancellation
-                    userData = await Task.Run(() =>
+                    // Use the new async ReadAsync API with cancellation support
+                    if (await jsonReader.ReadAsync(cancellationToken).ConfigureAwait(false))
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        return serializer.Deserialize<object>(jsonReader);
-                    }, cancellationToken).ConfigureAwait(false);
+                        userData = serializer.Deserialize<object>(jsonReader);
+                    }
+                    else
+                    {
+                        userData = null;
+                    }
                 }
 
-                // Simulate user creation
                 return Ok("User created successfully");
             }
             catch (OperationCanceledException)
             {
-                _logger.LogWarning("CreateUser operation was canceled.");
+                _createUserCanceled(_logger, null);
                 return StatusCode(499, "Client Closed Request");
             }
-            catch (Exception ex)
+            catch (ArgumentNullException ex)
             {
-                _logger.LogError(ex, "Error in CreateUser");
+                _createUserError(_logger, ex);
+                throw;
+            }
+            catch (ArgumentException ex)
+            {
+                _createUserError(_logger, ex);
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                _createUserError(_logger, ex);
                 throw;
             }
             finally

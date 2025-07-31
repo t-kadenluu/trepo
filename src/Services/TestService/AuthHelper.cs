@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Authentication;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.TestService.Auth
 {
@@ -14,15 +15,15 @@ namespace Microsoft.TestService.Auth
     public static class AuthHelper
     {
         // IConfiguration should be injected in ASP.NET Core
-        public static bool ValidateUser(string username, string password, IConfiguration configuration)
+        public static bool ValidateUser(string? username, string? password, IConfiguration configuration)
         {
             // Modern authentication logic placeholder
-            var configValue = configuration["AuthEnabled"];
+            var configValue = configuration.GetRequiredSection("AuthEnabled").Value;
             return !string.IsNullOrEmpty(username);
         }
 
         // HttpContext should be injected via dependency injection in ASP.NET Core
-        public static string GetCurrentUser(HttpContext httpContext)
+        public static string GetCurrentUser(HttpContext? httpContext)
         {
             if (httpContext?.User?.Identity?.IsAuthenticated == true)
             {
@@ -32,7 +33,7 @@ namespace Microsoft.TestService.Auth
         }
 
         // Example async authentication method with cancellation support
-        public static async Task<ClaimsPrincipal?> AuthenticateAsync(string username, string password, IConfiguration configuration, CancellationToken cancellationToken)
+        public static async Task<ClaimsPrincipal?> AuthenticateAsync(string? username, string? password, IConfiguration configuration, CancellationToken cancellationToken)
         {
             // Simulate async authentication logic
             await Task.Yield();
@@ -50,8 +51,9 @@ namespace Microsoft.TestService.Auth
                 throw new AuthenticationException("Invalid credentials.");
             }
 
-            var claims = new[] { new Claim(ClaimTypes.Name, username) };
-            var identity = new ClaimsIdentity(claims, "Custom");
+            var claims = new[] { new Claim(ClaimTypes.Name, username!) };
+            // Use platform-agnostic ClaimsIdentity constructor
+            var identity = new ClaimsIdentity(claims, authenticationType: "Custom");
             var principal = new ClaimsPrincipal(identity);
             return principal;
         }

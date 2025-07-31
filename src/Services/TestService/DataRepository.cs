@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,9 +13,10 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
+using System.Collections.Frozen;
+using System.Buffers;
 
 namespace Microsoft.TestService.Data
 {
@@ -25,7 +27,20 @@ namespace Microsoft.TestService.Data
     {
         private readonly string _connectionString;
         private readonly ILogger<DataRepository>? _logger;
-        private static readonly ActivitySource ActivitySource = new ActivitySource("Microsoft.TestService.Data.DataRepository");
+        private static readonly ActivitySource ActivitySource = new("Microsoft.TestService.Data.DataRepository");
+
+        // Metrics: Use Meter, Counter, Histogram for cross-platform telemetry
+        private static readonly Meter Meter = new("Microsoft.TestService.Data.DataRepository", "9.0.0");
+        private static readonly Counter<long> GetDataAsyncCallCount = Meter.CreateCounter<long>("getdataasync_calls", description: "Number of GetDataAsync calls");
+        private static readonly Histogram<double> GetDataAsyncDuration = Meter.CreateHistogram<double>("getdataasync_duration_ms", unit: "ms", description: "Duration of GetDataAsync in milliseconds");
+
+        // Predefined log messages for performance
+        private static readonly Action<ILogger, Exception?> LogSqlError =
+            LoggerMessage.Define(LogLevel.Error, new EventId(1, nameof(LogSqlError)), "SQL error in GetDataAsync");
+        private static readonly Action<ILogger, Exception?> LogGeneralError =
+            LoggerMessage.Define(LogLevel.Error, new EventId(2, nameof(LogGeneralError)), "Error in GetDataAsync");
+        private static readonly Action<ILogger, double?, Exception?> LogGetDataAsyncDuration =
+            LoggerMessage.Define<double?>(LogLevel.Information, new EventId(3, nameof(LogGetDataAsyncDuration)), "GetDataAsync duration: {Duration}ms");
 
         public DataRepository(string connectionString, ILogger<DataRepository>? logger = null)
         {
@@ -36,6 +51,8 @@ namespace Microsoft.TestService.Data
         public async IAsyncEnumerable<User> GetDataAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var activity = ActivitySource.StartActivity("GetDataAsync", ActivityKind.Internal);
+            var startTimestamp = Stopwatch.GetTimestamp();
+            GetDataAsyncCallCount.Add(1, new KeyValuePair<string, object?>("operation", "GetDataAsync"));
             try
             {
                 var connectionString = GetPlatformCompatibleConnectionString(_connectionString);
@@ -48,10 +65,7 @@ namespace Microsoft.TestService.Data
                     {
                         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                         {
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                yield break;
-                            }
+                            cancellationToken.ThrowIfCancellationRequested();
                             var user = new User
                             {
                                 Id = reader.GetInt32(0),
@@ -63,20 +77,44 @@ namespace Microsoft.TestService.Data
                     }
                 }
             }
+            catch (Microsoft.Data.SqlClient.SqlException ex) when (ex is not null)
+            {
+                if (_logger is not null)
+                {
+                    LogSqlError(_logger, ex);
+                }
+                throw;
+            }
             catch (SqlException ex) when (ex is not null)
             {
-                _logger?.LogError(ex, "SQL error in GetDataAsync");
+                if (_logger is not null)
+                {
+                    LogSqlError(_logger, ex);
+                }
+                throw;
+            }
+            catch (OperationCanceledException ex) when (ex is not null)
+            {
+                // Cancellation requested, do not log as error
                 throw;
             }
             catch (Exception ex) when (ex is not null)
             {
-                _logger?.LogError(ex, "Error in GetDataAsync");
+                if (_logger is not null)
+                {
+                    LogGeneralError(_logger, ex);
+                }
                 throw;
             }
             finally
             {
+                var durationMs = (Stopwatch.GetTimestamp() - startTimestamp) * 1000.0 / Stopwatch.Frequency;
+                GetDataAsyncDuration.Record(durationMs, new KeyValuePair<string, object?>("operation", "GetDataAsync"));
                 activity?.Stop();
-                _logger?.LogInformation("GetDataAsync duration: {Duration}ms", activity?.Duration.TotalMilliseconds);
+                if (_logger is not null)
+                {
+                    LogGetDataAsyncDuration(_logger, durationMs, null);
+                }
             }
         }
 
@@ -85,7 +123,7 @@ namespace Microsoft.TestService.Data
         {
             var builder = new SqlConnectionStringBuilder(baseConnectionString);
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!OperatingSystem.IsWindows())
             {
                 if (builder.IntegratedSecurity)
                 {
@@ -130,7 +168,7 @@ namespace Microsoft.TestService.Data
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 WriteIndented = false
             };
-            return JsonSerializer.Serialize(data, options);
+            return JsonSerializer.Serialize(data, data?.GetType() ?? typeof(object), options);
         }
 
         public async Task SerializeDataToFileAsync(object? data, string fileName, CancellationToken cancellationToken = default)
@@ -143,7 +181,15 @@ namespace Microsoft.TestService.Data
             };
 
             var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
-            await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous);
+            var fileStreamOptions = new FileStreamOptions
+            {
+                Access = FileAccess.Write,
+                Mode = FileMode.Create,
+                Share = FileShare.None,
+                BufferSize = 4096,
+                Options = FileOptions.Asynchronous
+            };
+            await using var stream = new FileStream(filePath, fileStreamOptions);
             await JsonSerializer.SerializeAsync(stream, data, data?.GetType() ?? typeof(object), options, cancellationToken).ConfigureAwait(false);
             await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -158,15 +204,27 @@ namespace Microsoft.TestService.Data
             };
 
             var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
-            await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous);
-            return await JsonSerializer.DeserializeAsync<T>(stream, options, cancellationToken).ConfigureAwait(false);
+            var fileStreamOptions = new FileStreamOptions
+            {
+                Access = FileAccess.Read,
+                Mode = FileMode.Open,
+                Share = FileShare.Read,
+                BufferSize = 4096,
+                Options = FileOptions.Asynchronous
+            };
+            await using var stream = new FileStream(filePath, fileStreamOptions);
+            var result = await JsonSerializer.DeserializeAsync<T>(stream, options, cancellationToken).ConfigureAwait(false);
+            return result;
         }
     }
 
     public record User
     {
+        [JsonPropertyName("id")]
         public int Id { get; init; }
+        [JsonPropertyName("name")]
         public string Name { get; init; } = string.Empty;
+        [JsonPropertyName("email")]
         public string Email { get; init; } = string.Empty;
     }
 }
